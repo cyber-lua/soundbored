@@ -3,109 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soundbored</title>
+    <title>Soundbored - Online soundboard</title>
+
+    <meta name="description" content="Soundbored: A platform to upload, manage, and play your favorite sound files.">
+    <meta name="keywords" content="Sound, Audio, Upload, Music, Manage Sounds">
+    <meta name="author" content="cyber.lua">
+    
+    <!-- Open Graph Meta Tags for social media sharing -->
+    <meta property="og:title" content="Soundbored">
+    <meta property="og:description" content="Soundbored: A platform to upload, manage, and play your favorite sound files.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/cyber-lua/soundbored/main/sb.png">
+    <meta property="og:url" content="https://cyber-lua.github.io/soundbored/">
+    <meta property="og:type" content="website">
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        .sound-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sound-item {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        .sound-button {
-            background-color: #6200ea;
-            color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            margin-right: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .sound-button:hover {
-            background-color: #3700b3;
-        }
-        .keybind-input {
-            margin-right: 10px;
-        }
-        .upload-btn, .name-input {
-            margin: 20px 0;
-        }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+/* Rainbow Gradient Carousel Animation */
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+    background-size: 800%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 10s ease-in-out infinite; /* Changed linear to ease-in-out */
+}
+
+@keyframes rainbow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%; /* Midway point to hold position */
+    }
+    100% {
+        background-position: 0% 50%; /* Snap back to original position smoothly */
+    }
+}
+
+
+.upload-btn {
+    display: none;
+}
+
+.custom-upload {
+    background-color: #6200ea;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: 1px solid #333;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.custom-upload:hover {
+    background-color: #3700b3;
+}
+
+.name-input {
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 5px;
+    border: 1px solid #333;
+    background-color: #2c2c2c;
+    color: #ffffff;
+    font-size: 1em;
+}
+
+.action-button {
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 5px;
+    border: none;
+    background-color: #6200ea;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.action-button:hover {
+    background-color: #3700b3;
+}
+
+.sound-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Adjust column size */
+    gap: 10px; /* Space between buttons */
+    padding: 0;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+}
+
+.sound-item {
+    display: flex;
+    justify-content: center; /* Center the button */
+    align-items: center;
+    background-color: #333;
+    border-radius: 5px;
+    padding: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sound-button {
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    color: #ffffff;
+    border: none;
+    padding: 15px;
+    margin: 5px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    font-size: 1.1em;
+    flex: 1 1 45%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.sound-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 768px) {
+    .sound-button, .action-button {
+        flex: none;
+    }
+}
+
+
+
+
     </style>
 </head>
 <body>
-    <h1>Soundbored</h1>
+    <h1>SOUNDBORED</h1>
     <input type="file" id="fileInput" accept="audio/*" class="upload-btn">
+    <label for="fileInput" class="custom-upload">Upload Sound</label>
     <input type="text" id="nameInput" class="name-input" placeholder="Enter sound name">
+    <button id="stopAllButton" class="action-button">Stop All Sounds</button>
+    <button id="editModeButton" class="action-button">Enable Edit Mode</button>
     <ul id="soundList" class="sound-list"></ul>
 
     <script>
         document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-        document.addEventListener('keydown', handleKeyPress);
+        document.getElementById('stopAllButton').addEventListener('click', stopAllSounds);
+        document.getElementById('editModeButton').addEventListener('click', toggleEditMode);
 
-        const sounds = loadSoundsFromURL();
+        let isEditMode = false;
+        const audioElements = [];
+
+        // Open IndexedDB
+        const request = indexedDB.open('SoundboredDB', 1);
+        let db;
+
+        request.onerror = function(event) {
+            console.error('Database error:', event.target.error);
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadSoundsFromIndexedDB();
+        };
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            const objectStore = db.createObjectStore('sounds', { keyPath: 'name' });
+        };
 
         function handleFileUpload(event) {
             const file = event.target.files[0];
-            if (file) {
+            if (file && file.type.startsWith('audio/')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const base64Sound = e.target.result;
+                    const soundData = e.target.result;
                     const soundName = document.getElementById('nameInput').value || file.name;
-                    storeSoundInURL(soundName, base64Sound, '');
-                    addSoundToList(soundName, base64Sound, '');
+                    storeSoundInIndexedDB(soundName, soundData);
+                    addSoundToList(soundName, soundData);
                     document.getElementById('nameInput').value = '';
                 };
                 reader.readAsDataURL(file);
+            } else {
+                alert('Please upload a valid audio file.');
             }
         }
 
-        function storeSoundInURL(name, sound, keybind) {
-            if (!name || !sound) {
-                console.warn(`Cannot save sound: missing name or sound data. name="${name}", sound="${sound}"`);
-                return;
-            }
+        function storeSoundInIndexedDB(name, sound) {
+            const transaction = db.transaction(['sounds'], 'readwrite');
+            const objectStore = transaction.objectStore('sounds');
+            const request = objectStore.add({ name: name, sound: sound });
 
-            const soundData = { sound, keybind };
-            const encodedData = encodeURIComponent(JSON.stringify(soundData));
+            request.onsuccess = function(event) {
+                console.log(`Saved sound: name="${name}" in IndexedDB`);
+            };
 
-            // Append the sound to the URL as a query string
-            const currentURL = new URL(window.location.href);
-            currentURL.searchParams.set(name, encodedData);
-
-            // Update the URL without reloading the page
-            window.history.replaceState({}, '', currentURL);
-
-            console.log(`Saved sound: name="${name}" in URL`);
+            request.onerror = function(event) {
+                console.error('Failed to save sound:', event.target.error);
+            };
         }
 
-        function loadSoundsFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const sounds = {};
+        function loadSoundsFromIndexedDB() {
+            const transaction = db.transaction(['sounds'], 'readonly');
+            const objectStore = transaction.objectStore('sounds');
+            const request = objectStore.getAll();
 
-            urlParams.forEach((value, name) => {
-                try {
-                    const decodedValue = decodeURIComponent(value);
-                    sounds[name] = JSON.parse(decodedValue);
-                } catch (e) {
-                    console.error(`Error parsing sound data from URL for "${name}":`, e);
-                }
-            });
+            request.onsuccess = function(event) {
+                const sounds = event.target.result;
+                sounds.forEach(({ name, sound }) => {
+                    addSoundToList(name, sound);
+                });
+            };
 
-            return sounds;
+            request.onerror = function(event) {
+                console.error('Failed to load sounds:', event.target.error);
+            };
         }
 
-        function addSoundToList(name, base64Sound, keybind) {
+        function addSoundToList(name, soundData) {
             const soundList = document.getElementById('soundList');
             const listItem = document.createElement('li');
             listItem.className = 'sound-item';
@@ -113,27 +245,63 @@
             const soundButton = document.createElement('button');
             soundButton.className = 'sound-button';
             soundButton.innerText = name;
-            soundButton.onclick = () => playSound(base64Sound);
+
+            soundButton.onclick = function() {
+                if (isEditMode) {
+                    deleteSound(name);
+                } else {
+                    playSound(soundData);
+                }
+            };
 
             listItem.appendChild(soundButton);
             soundList.appendChild(listItem);
         }
 
-        function playSound(base64Sound) {
-            const audio = new Audio(base64Sound);
-            audio.play();
+        function stopAllSounds() {
+            audioElements.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            audioElements.length = 0;
+            alert('All sounds stopped.');
         }
 
-        function handleKeyPress(event) {
-            const sound = Object.values(sounds).find(sound => sound.keybind === event.key);
-            if (sound) {
-                playSound(sound.sound);
+        function playSound(soundData) {
+            const audio = new Audio(soundData);
+            audio.play().catch(err => {
+                console.error('Error playing audio:', err);
+            });
+            audioElements.push(audio);
+        }
+
+        function deleteSound(name) {
+            const confirmed = confirm(`Are you sure you want to delete "${name}"?`);
+            if (confirmed) {
+                const transaction = db.transaction(['sounds'], 'readwrite');
+                const objectStore = transaction.objectStore('sounds');
+                const request = objectStore.delete(name);
+
+                request.onsuccess = function(event) {
+                    const soundList = document.getElementById('soundList');
+                    const soundItems = Array.from(soundList.getElementsByClassName('sound-item'));
+                    const itemToRemove = soundItems.find(item => item.textContent.includes(name));
+                    if (itemToRemove) {
+                        soundList.removeChild(itemToRemove);
+                    }
+                    alert(`Sound "${name}" deleted.`);
+                };
+
+                request.onerror = function(event) {
+                    console.error('Failed to delete sound:', event.target.error);
+                };
             }
         }
 
-        // Initialize the sound list with sounds from the URL
-        for (const [name, { sound, keybind }] of Object.entries(sounds)) {
-            addSoundToList(name, sound, keybind);
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            document.getElementById('editModeButton').innerText = isEditMode ? 'Disable Edit Mode' : 'Enable Edit Mode';
+            alert(`Edit mode is now ${isEditMode ? 'enabled' : 'disabled'}.`);
         }
     </script>
 </body>
