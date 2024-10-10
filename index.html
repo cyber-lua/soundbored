@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundbored</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .sound-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sound-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .sound-button {
+            background-color: #6200ea;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sound-button:hover {
+            background-color: #3700b3;
+        }
+        .keybind-input {
+            margin-right: 10px;
+        }
+        .upload-btn, .name-input {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Soundbored</h1>
+    <input type="file" id="fileInput" accept="audio/*" class="upload-btn">
+    <input type="text" id="nameInput" class="name-input" placeholder="Enter sound name">
+    <ul id="soundList" class="sound-list"></ul>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        document.addEventListener('keydown', handleKeyPress);
+
+        const sounds = loadSoundsFromURL();
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Sound = e.target.result;
+                    const soundName = document.getElementById('nameInput').value || file.name;
+                    storeSoundInURL(soundName, base64Sound, '');
+                    addSoundToList(soundName, base64Sound, '');
+                    document.getElementById('nameInput').value = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function storeSoundInURL(name, sound, keybind) {
+            if (!name || !sound) {
+                console.warn(`Cannot save sound: missing name or sound data. name="${name}", sound="${sound}"`);
+                return;
+            }
+
+            const soundData = { sound, keybind };
+            const encodedData = encodeURIComponent(JSON.stringify(soundData));
+
+            // Append the sound to the URL as a query string
+            const currentURL = new URL(window.location.href);
+            currentURL.searchParams.set(name, encodedData);
+
+            // Update the URL without reloading the page
+            window.history.replaceState({}, '', currentURL);
+
+            console.log(`Saved sound: name="${name}" in URL`);
+        }
+
+        function loadSoundsFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sounds = {};
+
+            urlParams.forEach((value, name) => {
+                try {
+                    const decodedValue = decodeURIComponent(value);
+                    sounds[name] = JSON.parse(decodedValue);
+                } catch (e) {
+                    console.error(`Error parsing sound data from URL for "${name}":`, e);
+                }
+            });
+
+            return sounds;
+        }
+
+        function addSoundToList(name, base64Sound, keybind) {
+            const soundList = document.getElementById('soundList');
+            const listItem = document.createElement('li');
+            listItem.className = 'sound-item';
+
+            const soundButton = document.createElement('button');
+            soundButton.className = 'sound-button';
+            soundButton.innerText = name;
+            soundButton.onclick = () => playSound(base64Sound);
+
+            listItem.appendChild(soundButton);
+            soundList.appendChild(listItem);
+        }
+
+        function playSound(base64Sound) {
+            const audio = new Audio(base64Sound);
+            audio.play();
+        }
+
+        function handleKeyPress(event) {
+            const sound = Object.values(sounds).find(sound => sound.keybind === event.key);
+            if (sound) {
+                playSound(sound.sound);
+            }
+        }
+
+        // Initialize the sound list with sounds from the URL
+        for (const [name, { sound, keybind }] of Object.entries(sounds)) {
+            addSoundToList(name, sound, keybind);
+        }
+    </script>
+</body>
+</html>
