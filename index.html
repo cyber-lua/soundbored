@@ -201,9 +201,7 @@ h1 {
                     document.getElementById('nameInput').value = '';
                 };
                 reader.readAsDataURL(file);
-            } else {
-                alert('Please upload a valid audio file.');
-            }
+            } 
         }
 
         function storeSoundInIndexedDB(name, sound) {
@@ -264,7 +262,7 @@ h1 {
                 audio.currentTime = 0;
             });
             audioElements.length = 0;
-            alert('All sounds stopped.');
+            
         }
 
         function playSound(soundData) {
@@ -289,7 +287,7 @@ h1 {
                     if (itemToRemove) {
                         soundList.removeChild(itemToRemove);
                     }
-                    alert(`Sound "${name}" deleted.`);
+                    
                 };
 
                 request.onerror = function(event) {
@@ -301,7 +299,7 @@ h1 {
         function toggleEditMode() {
             isEditMode = !isEditMode;
             document.getElementById('editModeButton').innerText = isEditMode ? 'Disable Edit Mode' : 'Enable Edit Mode';
-            alert(`Edit mode is now ${isEditMode ? 'enabled' : 'disabled'}.`);
+            
         }
     </script>
 </body>
